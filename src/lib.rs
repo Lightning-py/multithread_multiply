@@ -14,8 +14,13 @@ pub fn matrix_multiply(
     let cols_b = matrix_b[0].len();
 
     let result = Arc::new(Mutex::new(vec![vec![0; cols_b]; rows_a]));
+
     let num_threads = num_cpus::get();
+
     let chunk_size = rows_a / num_threads;
+
+    let matrix_a = Arc::new(matrix_a.clone());
+    let matrix_b = Arc::new(matrix_b.clone());
 
     let mut handles = vec![];
 
@@ -27,17 +32,22 @@ pub fn matrix_multiply(
             (i + 1) * chunk_size
         };
 
-        let matrix_a = Arc::new(matrix_a.clone());
-        let matrix_b = Arc::new(matrix_b.clone());
+        let matrix_a = Arc::clone(&matrix_a);
+        let matrix_b = Arc::clone(&matrix_b);
+
         let result = Arc::clone(&result);
 
         let handle = thread::spawn(move || {
             for row_a in start_row..end_row {
                 for col_b in 0..cols_b {
+                    let mut sum = 0;
+
                     for k in 0..cols_a {
-                        let mut result = result.lock().unwrap();
-                        result[row_a][col_b] += matrix_a[row_a][k] * matrix_b[k][col_b];
+                        sum += matrix_a[row_a][k] * matrix_b[k][col_b];
                     }
+
+                    let mut result = result.lock().unwrap();
+                    result[row_a][col_b] = sum;
                 }
             }
         });
