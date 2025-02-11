@@ -74,7 +74,7 @@ fn test_matrix_vector_multiplication() {
 // Тест: Большая матрица случайных чисел.
 #[test]
 fn test_large_random_matrix() {
-    let size = 50; // Размер матрицы (50x50)
+    let size = 1000; // Размер матрицы (1000 x 1000)
     let mut rng = rand::thread_rng();
 
     // Создание случайных матриц
